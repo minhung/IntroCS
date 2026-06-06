@@ -1,5 +1,6 @@
 # coding=utf-8
 """
+改寫自 蔡慶源(同屆有邱普照、李昱勳、林蔚安、王崇暄...)2013的期末報告
 名字對戰遊戲 - Flask / Python 3 版本
 原版：webapp2 + Python 2（Google App Engine 舊版）
 改寫：Flask + Python 3（適用 Cloud Run）
