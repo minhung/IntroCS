@@ -2,7 +2,7 @@
 
 這是一個簡單的 Flask 網頁程式，功能是讓兩位玩家輸入姓名，每回合擲骰子累積點數。
 有興趣的同學可以用這個架構把自己寫的 Python 程式部署到 Render 或其他平台上。
-
+[骰子累積點數遊戲 Render 連結](https://introcs-hello.onrender.com/)
 ---
 
 ## 程式簡單說明
