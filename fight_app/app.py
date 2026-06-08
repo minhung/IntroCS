@@ -1,6 +1,7 @@
 # coding=utf-8
 """
 名字對戰遊戲 - Flask / Python 3 版本
+改寫自 蔡慶源(同屆有邱普照、李昱勳、林蔚安、王崇暄...)2013的期末報告
 原版：webapp2 + Python 2（Google App Engine 舊版）
 改寫：Flask + Python 3（適用 Cloud Run）
 """
@@ -467,18 +468,72 @@ def fight():
     else:
         fight_log.append(f'超過{MAX_ROUNDS}回合，平手！')
 
-    # ── 產生 HTML 結果頁 ──────────────────────────────────
-    out = ['<html><head><meta charset="utf-8"><title>對戰結果</title></head><body>']
-    out.append('<h2>對戰結果</h2>')
-    out.append('<h3>Initial Stat:</h3>')
+    # ── 產生 HTML 結果頁（逐回合顯示）────────────────────
+    total_rounds = len(fight_log) - 1  # 扣掉 Initial Stat
+
+    out = ["""
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>對戰結果</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; }
+    pre { background: #f5f5f5; padding: 12px; border-radius: 6px; white-space: pre-wrap; }
+    .round { display: none; }
+    .round.visible { display: block; }
+    #btn-next {
+      padding: 10px 28px; font-size: 16px; cursor: pointer;
+      background: #2E75B6; color: white; border: none; border-radius: 6px;
+      margin-top: 12px;
+    }
+    #btn-next:hover { background: #1a5a9a; }
+    #status { color: #888; margin-top: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h2>對戰結果</h2>
+"""]
+
+    # Initial Stat（永遠顯示）
+    out.append(f'<h3>Initial Stat:</h3>')
     out.append(f'<blockquote><pre>{html.escape(fight_log[0])}</pre></blockquote>')
 
+    # 每個 round 包在 div 裡，預設隱藏
     for i, log in enumerate(fight_log[1:], start=1):
-        out.append(f'<b>Round {i}:</b>')
+        label = f'Round {i}' if i < total_rounds else f'Final Round {i}'
+        out.append(f'<div class="round" id="round-{i}">')
+        out.append(f'<b>{label}:</b>')
         out.append(f'<blockquote><pre>{html.escape(log)}</pre></blockquote>')
+        out.append('</div>')
 
-    out.append('<br><a href="/">再玩一次</a>')
-    out.append('</body></html>')
+    # 下一回合按鈕
+    out.append(f"""
+  <button id="btn-next" onclick="showNext()">▶ 下一回合</button>
+  <div id="status">第 0 / {total_rounds} 回合</div>
+  <br>
+  <a id="link-replay" href="/" style="display:none">🔄 再玩一次</a>
+
+  <script>
+    var current = 0;
+    var total = {total_rounds};
+
+    function showNext() {{
+      current++;
+      var el = document.getElementById('round-' + current);
+      if (el) {{
+        el.classList.add('visible');
+        el.scrollIntoView({{behavior: 'smooth', block: 'start'}});
+      }}
+      document.getElementById('status').textContent = '第 ' + current + ' / ' + total + ' 回合';
+      if (current >= total) {{
+        document.getElementById('btn-next').style.display = 'none';
+        document.getElementById('link-replay').style.display = 'inline';
+      }}
+    }}
+  </script>
+</body>
+</html>
+""")
     return '\n'.join(out)
 
 
